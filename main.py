@@ -31,6 +31,29 @@ def static_ground(space):
 def draw_static_ground():
     pygame.draw.rect(screen, (0,0,200), pygame.Rect(0, 750, 1000, 0),2)
 
+def hoop(space):
+    mass = 1
+    
+    segment1_moment = pymunk.moment_for_segment(mass,(950,300),(1000,300),2) #end points and thickness
+    segment1_body = pymunk.Body(mass,segment1_moment,pymunk.Body.KINEMATIC)
+    segment1_body.position = 0,0
+    segment1_shape = pymunk.Segment(segment1_body,(950,300),(1000,300),2)
+    segment1_shape.elasticity = 1
+
+    segment2_moment = pymunk.moment_for_segment(mass,(1000,250),(1000,300),2) #end points and thickness
+    segment2_body = pymunk.Body(mass,segment2_moment,pymunk.Body.KINEMATIC)
+    segment2_body.position = 0,0
+    segment2_shape = pymunk.Segment(segment2_body,(1000,250),(1000,300),2)
+    segment2_shape.elasticity = 1
+
+    space.add(segment1_body,segment1_shape,segment2_body,segment2_shape)
+    return segment1_shape, segment2_shape
+
+def draw_hoop():
+    pygame.draw.rect(screen, (0,200,0), pygame.Rect(950, 300, 50, 0),2)
+    pygame.draw.rect(screen, (0,200,0), pygame.Rect(1000, 250, 0, 50),2)
+
+
 pygame.init()
 screen = pygame.display.set_mode((1000,800))
 clock = pygame.time.Clock()
@@ -39,6 +62,8 @@ space.gravity = (100,1000)
 balls = []
 balls.append(create_ball(space))
 ground = static_ground(space)
+hoop = hoop(space)
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -48,6 +73,7 @@ while True:
     screen.fill((50,50,50))
     draw_ball(balls)
     draw_static_ground()
+    draw_hoop()
     space.step(1/50)
     pygame.display.update()
     clock.tick(120)
