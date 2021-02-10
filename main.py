@@ -12,13 +12,13 @@ class Environment():
     def __init__(self):
         self.rock = Rock(1,20,space,screen)
         self.ground = Ground(1,space,screen)
-        # self.player = Player(1000,420,400,space,screen)
+        self.player = Player(1000,420,400,space,screen)
         self.walls = Walls(1,space,screen)
 
     def draw_env(self):
         self.rock.draw_rock()
         self.ground.draw_ground()
-        # self.player.draw_player()
+        self.player.draw_player()
         self.walls.draw_walls()
 
 env = Environment()
