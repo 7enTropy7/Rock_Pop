@@ -1,24 +1,47 @@
 import pymunk
 import pygame
 
-class Ball():
+class Rock():
     def __init__(self,mass,radius,space,screen):
         self.mass = mass
         self.radius  = radius
-        self.elasticity = 0.8
+        self.elasticity = 1.0
         self.screen = screen
         self.circle_moment = pymunk.moment_for_circle(self.mass,0,self.radius)
         self.circle_body = pymunk.Body(self.mass,self.circle_moment)
-        self.circle_body.position = 0,0
+        self.circle_body.position = 0,10
         self.circle_shape = pymunk.Circle(self.circle_body,self.radius)
         self.circle_shape.body.velocity = (400,0)
         self.circle_shape.elasticity = self.elasticity
         space.add(self.circle_body, self.circle_shape)
         
-    def draw_ball(self):
+    def draw_rock(self):
         pos_x = int(self.circle_body.position.x)
         pos_y = int(self.circle_body.position.y)
         pygame.draw.circle(self.screen,(0,0,0),(pos_x,pos_y),30)
+
+
+class Player():
+    def __init__(self,mass,x,y,space,screen):
+        self.mass = mass
+        self.screen = screen
+        self.triangle_shape = pymunk.Poly(None,((0,0),(100,0),(50,-100)))
+        self.triangle_moment = pymunk.moment_for_poly(mass,self.triangle_shape.get_vertices())
+        self.triangle_body = pymunk.Body(mass,self.triangle_moment,pymunk.Body.DYNAMIC)
+        self.triangle_body.position = x,y
+        self.triangle_body.velocity = 0,200
+        self.triangle_shape.body = self.triangle_body
+        self.triangle_shape.body.angle = 0.0
+        
+        space.add(self.triangle_body,self.triangle_shape)
+    
+    def draw_player(self):
+        vertices = []
+        for v in self.triangle_shape.get_vertices():
+            x,y = v.rotated(self.triangle_shape.body.angle) + self.triangle_shape.body.position
+            vertices.append((int(x),int(y)))
+        print(vertices)
+        pygame.draw.polygon(self.screen,(0,200,0),(vertices))
 
 class Ground():
     def __init__(self,mass,space,screen):
@@ -34,23 +57,22 @@ class Ground():
     def draw_ground(self):
         pygame.draw.rect(self.screen, (0,0,200), pygame.Rect(0, 750, 1000, 0),2)
 
-class Basket():
-    def __init__(self,mass,height,space,screen):
+class Walls():
+    def __init__(self,mass,space,screen):
         self.mass = mass
-        self.hoop_height = height
         self.screen = screen
-        self.segment1_moment = pymunk.moment_for_segment(mass,(950,self.hoop_height),(1000,self.hoop_height),2) #end points and thickness
-        self.segment1_body = pymunk.Body(self.mass,self.segment1_moment,pymunk.Body.KINEMATIC)
+        self.segment1_moment = pymunk.moment_for_segment(mass,(0,0),(0,800),2) #end points and thickness
+        self.segment1_body = pymunk.Body(self.mass,self.segment1_moment,pymunk.Body.STATIC)
         self.segment1_body.position = 0,0
-        self.segment1_shape = pymunk.Segment(self.segment1_body,(950,self.hoop_height),(1000,self.hoop_height),2)
+        self.segment1_shape = pymunk.Segment(self.segment1_body,(0,0),(0,800),2)
         self.segment1_shape.elasticity = 1
-        self.segment2_moment = pymunk.moment_for_segment(self.mass,(1000,self.hoop_height-50),(1000,self.hoop_height),2) #end points and thickness
-        self.segment2_body = pymunk.Body(self.mass,self.segment2_moment,pymunk.Body.KINEMATIC)
+        self.segment2_moment = pymunk.moment_for_segment(self.mass,(1000,0),(1000,800),2) #end points and thickness
+        self.segment2_body = pymunk.Body(self.mass,self.segment2_moment,pymunk.Body.STATIC)
         self.segment2_body.position = 0,0
-        self.segment2_shape = pymunk.Segment(self.segment2_body,(1000,self.hoop_height-50),(1000,self.hoop_height),2)
+        self.segment2_shape = pymunk.Segment(self.segment2_body,(1000,0),(1000,800),2)
         self.segment2_shape.elasticity = 1
         space.add(self.segment1_body,self.segment1_shape,self.segment2_body,self.segment2_shape)
 
-    def draw_hoop(self):
-        pygame.draw.rect(self.screen, (0,200,0), pygame.Rect(950, self.hoop_height, 50, 0),2)
-        pygame.draw.rect(self.screen, (0,200,0), pygame.Rect(1000, self.hoop_height-50, 0, 50),2)
+    def draw_walls(self):
+        pygame.draw.rect(self.screen, (0,200,0), pygame.Rect(0, 0, 0, 800),2)
+        pygame.draw.rect(self.screen, (0,200,0), pygame.Rect(1000, 0, 0, 800),2)

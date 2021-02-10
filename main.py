@@ -1,6 +1,6 @@
 import pymunk
 import pygame
-from elements import Basket,Ball,Ground
+from elements import Ground, Player, Rock, Walls
 
 pygame.init()
 screen = pygame.display.set_mode((1000,800))
@@ -10,29 +10,16 @@ space.gravity = (0,1000)
 
 class Environment():
     def __init__(self):
-        self.ball = Ball(1,30,space,screen)
+        self.rock = Rock(1,20,space,screen)
         self.ground = Ground(1,space,screen)
-        self.basket = Basket(1,300,space,screen)
+        # self.player = Player(1000,420,400,space,screen)
+        self.walls = Walls(1,space,screen)
 
     def draw_env(self):
-        self.ball.draw_ball()
+        self.rock.draw_rock()
         self.ground.draw_ground()
-        self.basket.draw_hoop()
-
-    def reset():
-        pass
-
-    def step():
-        pass
-
-    def calculate_reward():
-        pass
-
-    def update():
-        pass
-
-    def get_state():
-        pass
+        # self.player.draw_player()
+        self.walls.draw_walls()
 
 env = Environment()
 

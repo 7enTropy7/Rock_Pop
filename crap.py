@@ -1,82 +1,90 @@
+import sys, random
+random.seed(1) # make the simulation the same each time, easier to debug
 import pygame
 import pymunk
+import pymunk.pygame_util
 
-def create_ball(space):
-    mass = 1
-    radius = 30
-    circle_moment = pymunk.moment_for_circle(mass,0,radius)
-    circle_body = pymunk.Body(mass,circle_moment)
-    circle_body.position = 0,0
-    circle_shape = pymunk.Circle(circle_body,radius)
-    circle_shape.body.velocity = (400,0)
-    circle_shape.elasticity = 0.8
-    space.add(circle_body, circle_shape)
-    return circle_shape
+def add_ball(space):
+    """Add a ball to the given space at a random position"""
+    mass = 3
+    radius = 25
+    inertia = pymunk.moment_for_circle(mass, 0, radius, (0,0))
+    body = pymunk.Body(mass, inertia)
+    x = random.randint(120,300)
+    body.position = x, 50
+    shape = pymunk.Circle(body, radius, (0,0))
+    shape.friction = 1
+    space.add(body, shape)
+    return shape
 
-def draw_ball(balls):
-    for ball in balls:
-        pos_x = int(ball.body.position.x)
-        pos_y = int(ball.body.position.y)
-        pygame.draw.circle(screen,(0,0,0),(pos_x,pos_y),30)
+def add_L(space):
+    """Add a inverted L shape with two joints"""
+    rotation_center_body = pymunk.Body(body_type = pymunk.Body.STATIC)
+    rotation_center_body.position = (300,300)
 
-def static_ground(space):
-    mass = 1
-    segment_moment = pymunk.moment_for_segment(mass,(0,750),(1000,750),2) #end points and thickness
-    segment_body = pymunk.Body(mass,segment_moment,pymunk.Body.STATIC)
-    segment_body.position = 0,0
-    segment_shape = pymunk.Segment(segment_body,(0,750),(1000,750),2)
-    segment_shape.elasticity = 1
-    space.add(segment_body,segment_shape)
-    return segment_shape
+    rotation_limit_body = pymunk.Body(body_type = pymunk.Body.STATIC)
+    rotation_limit_body.position = (200,300)
 
-def draw_static_ground():
-    pygame.draw.rect(screen, (0,0,200), pygame.Rect(0, 750, 1000, 0),2)
+    body = pymunk.Body(10, 10000)
+    body.position = (300,300)
+    l1 = pymunk.Segment(body, (-150, 0), (255.0, 0.0), 5.0)
+    l2 = pymunk.Segment(body, (-150.0, 0), (-150.0, -50.0), 5.0)
+    l1.friction = 1
+    l2.friction = 1
+    l1.mass = 8
+    l2.mass = 1
 
-def hoop(space,hoop_height):
-    mass = 1
-    segment1_moment = pymunk.moment_for_segment(mass,(950,hoop_height),(1000,hoop_height),2) #end points and thickness
-    segment1_body = pymunk.Body(mass,segment1_moment,pymunk.Body.KINEMATIC)
-    segment1_body.position = 0,0
-    segment1_shape = pymunk.Segment(segment1_body,(950,hoop_height),(1000,hoop_height),2)
-    segment1_shape.elasticity = 1
+    rotation_center_joint = pymunk.PinJoint(body, rotation_center_body, (0,0), (0,0))
+    joint_limit = 25
+    rotation_limit_joint = pymunk.SlideJoint(body, rotation_limit_body, (-100,0), (0,0), 0, joint_limit)
 
-    segment2_moment = pymunk.moment_for_segment(mass,(1000,hoop_height-50),(1000,hoop_height),2) #end points and thickness
-    segment2_body = pymunk.Body(mass,segment2_moment,pymunk.Body.KINEMATIC)
-    segment2_body.position = 0,0
-    segment2_shape = pymunk.Segment(segment2_body,(1000,hoop_height-50),(1000,hoop_height),2)
-    segment2_shape.elasticity = 1
+    space.add(l1, l2, body, rotation_center_joint, rotation_limit_joint)
+    return l1,l2
 
-    space.add(segment1_body,segment1_shape,segment2_body,segment2_shape)
-    return segment1_shape, segment2_shape
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((600, 600))
+    pygame.display.set_caption("Joints. Just wait and the L will tip over")
+    clock = pygame.time.Clock()
 
-def draw_hoop(hoop_height):
-    pygame.draw.rect(screen, (0,200,0), pygame.Rect(950, hoop_height, 50, 0),2)
-    pygame.draw.rect(screen, (0,200,0), pygame.Rect(1000, hoop_height-50, 0, 50),2)
+    space = pymunk.Space()
+    space.gravity = (0.0, 900.0)
 
+    lines = add_L(space)
+    balls = []
+    draw_options = pymunk.pygame_util.DrawOptions(screen)
 
-pygame.init()
-screen = pygame.display.set_mode((1000,800))
-clock = pygame.time.Clock()
-space = pymunk.Space()
-space.gravity = (0,1000)
+    ticks_to_next_ball = 10
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit(0)
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                sys.exit(0)
 
-hoop_height = 550
+        ticks_to_next_ball -= 1
+        if ticks_to_next_ball <= 0:
+            ticks_to_next_ball = 25
+            ball_shape = add_ball(space)
+            balls.append(ball_shape)
 
-balls = []
-balls.append(create_ball(space))
-ground = static_ground(space)
-hoop = hoop(space,hoop_height)
+        screen.fill((255,255,255))
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.exit()
-            sys.exit()
-    
-    screen.fill((50,50,50))
-    draw_ball(balls)
-    draw_static_ground()
-    draw_hoop(hoop_height)
-    space.step(1/50)
-    pygame.display.update()
-    clock.tick(120)
+        balls_to_remove = []
+        for ball in balls:
+            if ball.body.position.y > 550:
+                balls_to_remove.append(ball)
+
+        for ball in balls_to_remove:
+            space.remove(ball, ball.body)
+            balls.remove(ball)
+
+        space.debug_draw(draw_options)
+
+        space.step(1/50.0)
+
+        pygame.display.flip()
+        clock.tick(50)
+
+if __name__ == '__main__':
+    main()
