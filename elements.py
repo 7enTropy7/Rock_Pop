@@ -25,17 +25,22 @@ class Player():
     def __init__(self,mass,x,y,space,screen):
         self.mass = mass
         self.screen = screen
-        self.triangle_shape = pymunk.Poly(None,((0,0),(100,0),(50,-100)))
+        self.triangle_shape = pymunk.Poly(None,((0, -25), (-25, 25), (25, 25)))
         self.triangle_moment = pymunk.moment_for_poly(mass,self.triangle_shape.get_vertices())
-        self.triangle_body = pymunk.Body(mass,self.triangle_moment,pymunk.Body.DYNAMIC)
+        self.triangle_body = pymunk.Body(mass,self.triangle_moment,pymunk.Body.KINEMATIC)
         self.triangle_body.position = x,y
-        self.triangle_body.velocity = 0,200
-        self.triangle_shape.body = self.triangle_body
+        self.triangle_body.velocity = 0,0
+        self.triangle_shape.body = self.triangle_body        
         self.triangle_shape.body.angle = 0.0
-        
+
         space.add(self.triangle_body,self.triangle_shape)
     
     def draw_player(self):
+        if self.triangle_body.position[0] >= 970:
+             self.triangle_body.position = 970,720
+        elif self.triangle_body.position[0] <= 30:
+             self.triangle_body.position = 30,720
+        
         vertices = []
         for v in self.triangle_shape.get_vertices():
             x,y = v.rotated(self.triangle_shape.body.angle) + self.triangle_shape.body.position
