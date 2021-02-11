@@ -1,6 +1,6 @@
 import pymunk
 import pygame
-from elements import Ground, Player, Rock, Walls
+from elements import Ground, Player, Rock, Walls, Bullet
 
 pygame.init()
 screen = pygame.display.set_mode((1000,800))
@@ -19,6 +19,7 @@ class Environment():
         self.rock.draw_rock()
         self.ground.draw_ground()
         self.player.draw_player()
+        self.player.draw_bullets()
         self.walls.draw_walls()
 
     def step(self,action):
@@ -26,6 +27,9 @@ class Environment():
             self.player.triangle_body.velocity = 200,0
         elif action == 0:
             self.player.triangle_body.velocity = -200,0
+        elif action == 2:
+            self.player.bullets.append(Bullet(self.player.triangle_body.position[0],self.player.triangle_body.position[1],space,screen))
+            self.player.shoot_bullet()
         else:
             self.player.triangle_body.velocity = 0,0
             
@@ -42,10 +46,13 @@ while True:
                 action = 0
             if event.key == pygame.K_RIGHT:
                 action = 1
+            if event.key == pygame.K_SPACE:
+                action = 2
 
     screen.fill((50,50,50))
     env.draw_env()
     env.step(action)
+    action = 0.5
     space.step(1/50)
     pygame.display.update()
     clock.tick(120)
