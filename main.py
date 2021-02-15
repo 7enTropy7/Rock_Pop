@@ -70,9 +70,7 @@ def coll_post(arbiter,space,data):
 
 handler = space.add_default_collision_handler()
 handler.begin = coll_begin
-# handler.pre_solve = coll_pre
 handler.post_solve = coll_post
-# handler.separate = coll_separate
 
 
 while True:
