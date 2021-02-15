@@ -13,7 +13,9 @@ class Bullet():
         self.b_circle_shape = pymunk.Circle(self.b_circle_body,self.b_radius)
         self.b_circle_shape.body.velocity = (0,-500)
         self.b_circle_shape.elasticity = self.b_elasticity
-        
+        self.b_circle_shape.id = 1
+        self.collided = False
+
         self.space = space
         self.space.add(self.b_circle_body, self.b_circle_shape)
 
@@ -36,6 +38,8 @@ class Rock():
         self.circle_shape = pymunk.Circle(self.circle_body,self.radius)
         self.circle_shape.body.velocity = (100,0)
         self.circle_shape.elasticity = self.elasticity
+        self.circle_shape.id = 2
+
         space.add(self.circle_body, self.circle_shape)
         
     def draw_rock(self):
@@ -55,6 +59,7 @@ class Player():
         self.triangle_body.velocity = 0,0
         self.triangle_shape.body = self.triangle_body        
         self.triangle_shape.body.angle = 0.0
+        self.triangle_shape.id = 3
 
         self.space = space
         self.space.add(self.triangle_body,self.triangle_shape)
@@ -82,7 +87,7 @@ class Player():
         for v in self.triangle_shape.get_vertices():
             x,y = v.rotated(self.triangle_shape.body.angle) + self.triangle_shape.body.position
             vertices.append((int(x),int(y)))
-        print(vertices)
+        # print(vertices)
         pygame.draw.polygon(self.screen,(0,200,0),(vertices))
 
 class Ground():
@@ -94,6 +99,8 @@ class Ground():
         self.segment_body.position = 0,0
         self.segment_shape = pymunk.Segment(self.segment_body,(0,750),(1000,750),2)
         self.segment_shape.elasticity = 1
+        self.segment_shape.id = 4
+
         space.add(self.segment_body,self.segment_shape)
 
     def draw_ground(self):
@@ -113,6 +120,9 @@ class Walls():
         self.segment2_body.position = 0,0
         self.segment2_shape = pymunk.Segment(self.segment2_body,(1000,0),(1000,800),2)
         self.segment2_shape.elasticity = 1
+        self.segment1_shape.id = 5
+        self.segment2_shape.id = 6
+
         space.add(self.segment1_body,self.segment1_shape,self.segment2_body,self.segment2_shape)
 
     def draw_walls(self):

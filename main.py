@@ -35,6 +35,46 @@ class Environment():
 
 env = Environment()
 action = 0.5
+score = 0
+
+def coll_begin(arbiter,space,data):
+    global score
+    global env
+    # print(arbiter.shapes)
+    if arbiter.shapes[1].radius == 20 and arbiter.shapes[0].radius == 5: 
+        score += 1
+        print(score)
+
+    elif arbiter.shapes[0].radius == 20 and arbiter.shapes[1].radius == 5: 
+        score += 1
+        print(score)
+
+    return True
+
+def coll_post(arbiter,space,data):
+    #print('post solve')
+    if arbiter.shapes[1].radius == 20 and arbiter.shapes[0].radius == 5: 
+        for b in range(len(env.player.bullets)):
+            if int(env.player.bullets[b].b_circle_shape.body.velocity[0]) != 0:
+                space.remove(arbiter.shapes[0].body,arbiter.shapes[0])
+                env.player.bullets.pop(b)
+                break
+
+    elif arbiter.shapes[0].radius == 20 and arbiter.shapes[1].radius == 5: 
+        for b in range(len(env.player.bullets)):
+            if int(env.player.bullets[b].b_circle_shape.body.velocity[0]) != 0:
+                space.remove(arbiter.shapes[1].body,arbiter.shapes[1])
+                env.player.bullets.pop(b)
+                break
+
+
+handler = space.add_default_collision_handler()
+handler.begin = coll_begin
+# handler.pre_solve = coll_pre
+handler.post_solve = coll_post
+# handler.separate = coll_separate
+
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
