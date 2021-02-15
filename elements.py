@@ -3,15 +3,15 @@ import pygame
         
 class Bullet():
     def __init__(self,x,y,space,screen):
-        self.b_mass = 1
+        self.b_mass = 0.001
         self.b_radius = 5
         self.screen = screen
         self.b_elasticity = 1.0
         self.b_circle_moment = pymunk.moment_for_circle(self.b_mass,0,self.b_radius)
-        self.b_circle_body = pymunk.Body(self.b_mass,self.b_circle_moment,pymunk.Body.KINEMATIC)
+        self.b_circle_body = pymunk.Body(self.b_mass,self.b_circle_moment,pymunk.Body.DYNAMIC)
         self.b_circle_body.position = x,y
         self.b_circle_shape = pymunk.Circle(self.b_circle_body,self.b_radius)
-        self.b_circle_shape.body.velocity = (0,-20)
+        self.b_circle_shape.body.velocity = (0,-500)
         self.b_circle_shape.elasticity = self.b_elasticity
         
         self.space = space
@@ -34,7 +34,7 @@ class Rock():
         self.circle_body = pymunk.Body(self.mass,self.circle_moment)
         self.circle_body.position = 0,10
         self.circle_shape = pymunk.Circle(self.circle_body,self.radius)
-        self.circle_shape.body.velocity = (400,0)
+        self.circle_shape.body.velocity = (100,0)
         self.circle_shape.elasticity = self.elasticity
         space.add(self.circle_body, self.circle_shape)
         
@@ -61,7 +61,7 @@ class Player():
 
         self.bullets = []
 
-    def shoot_bullet(self):
+    def remove_bullet(self):
         for b in range(len(self.bullets)):
             if int(self.bullets[b].b_circle_body.position.y)<=0:
                 self.space.remove(self.bullets[b].b_circle_body,self.bullets[b].b_circle_shape)
