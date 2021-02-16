@@ -1,6 +1,7 @@
 import pymunk
 import pygame
-        
+import numpy as np 
+
 class Environment():
     def __init__(self,space,screen):
         self.rock = Rock(100,20,space,screen)
@@ -8,8 +9,22 @@ class Environment():
         self.player = Player(2000,500,720,space,screen)
         self.walls = Walls(1,space,screen)
         self.done = False
+        self.reward = 0
         self.space = space
         self.screen = screen
+
+    def get_state(self):
+        return np.array([int(self.player.triangle_body.position[0]), int(self.rock.circle_body.position[0]), int(self.rock.circle_body.position[1])])
+
+    def reset(self):
+        self.space.remove(self.rock.circle_shape,self.rock.circle_body)
+        self.space.remove(self.player.triangle_shape,self.player.triangle_body)
+        self.rock = Rock(100,20,self.space,self.screen)
+        self.player = Player(2000,500,720,self.space,self.screen)
+        observation = self.get_state()
+        self.done = False
+        self.reward = 0
+        return observation
 
     def draw_env(self):
         self.rock.draw_rock()
@@ -28,6 +43,13 @@ class Environment():
         if shoot == 0:
             self.player.bullets.append(Bullet(self.player.triangle_body.position[0],self.player.triangle_body.position[1],self.space,self.screen))
         self.player.remove_bullet()
+        self.draw_env()
+        observation_ = self.get_state()
+        if self.player.collided == False:
+            self.reward -= 0.001
+        done = self.done
+        return observation_, self.reward, done
+
 
 
 class Bullet():
@@ -87,9 +109,10 @@ class Player():
         self.triangle_body = pymunk.Body(mass,self.triangle_moment,pymunk.Body.KINEMATIC)
         self.triangle_body.position = x,y
         self.triangle_body.velocity = 0,0
-        self.triangle_shape.body = self.triangle_body        
+        self.triangle_shape.body = self.triangle_body       
         self.triangle_shape.body.angle = 0.0
         self.triangle_shape.id = 3
+        self.collided = False
 
         self.space = space
         self.space.add(self.triangle_body,self.triangle_shape)
@@ -117,7 +140,6 @@ class Player():
         for v in self.triangle_shape.get_vertices():
             x,y = v.rotated(self.triangle_shape.body.angle) + self.triangle_shape.body.position
             vertices.append((int(x),int(y)))
-        # print(vertices)
         pygame.draw.polygon(self.screen,(0,200,0),(vertices))
 
 class Ground():
