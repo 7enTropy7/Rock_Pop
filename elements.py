@@ -1,6 +1,35 @@
 import pymunk
 import pygame
         
+class Environment():
+    def __init__(self,space,screen):
+        self.rock = Rock(100,20,space,screen)
+        self.ground = Ground(1,space,screen)
+        self.player = Player(2000,500,720,space,screen)
+        self.walls = Walls(1,space,screen)
+        self.done = False
+        self.space = space
+        self.screen = screen
+
+    def draw_env(self):
+        self.rock.draw_rock()
+        self.ground.draw_ground()
+        self.player.draw_player()
+        self.player.draw_bullets()
+        self.walls.draw_walls()
+
+    def step(self,action,shoot):
+        if action == 1:
+            self.player.triangle_body.velocity = 1000,0
+        elif action == 0:
+            self.player.triangle_body.velocity = -1000,0
+        else:
+            self.player.triangle_body.velocity = 0,0
+        if shoot == 0:
+            self.player.bullets.append(Bullet(self.player.triangle_body.position[0],self.player.triangle_body.position[1],self.space,self.screen))
+        self.player.remove_bullet()
+
+
 class Bullet():
     def __init__(self,x,y,space,screen):
         self.b_mass = 0.001

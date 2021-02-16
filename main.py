@@ -1,6 +1,6 @@
 import pymunk
 import pygame
-from elements import Ground, Player, Rock, Walls, Bullet
+from elements import Ground, Player, Rock, Walls, Bullet, Environment
 
 pygame.init()
 screen = pygame.display.set_mode((1000,800))
@@ -8,33 +8,7 @@ clock = pygame.time.Clock()
 space = pymunk.Space()
 space.gravity = (0,100)
 
-class Environment():
-    def __init__(self):
-        self.rock = Rock(100,20,space,screen)
-        self.ground = Ground(1,space,screen)
-        self.player = Player(2000,500,720,space,screen)
-        self.walls = Walls(1,space,screen)
-        self.done = False
-
-    def draw_env(self):
-        self.rock.draw_rock()
-        self.ground.draw_ground()
-        self.player.draw_player()
-        self.player.draw_bullets()
-        self.walls.draw_walls()
-
-    def step(self,action,shoot):
-        if action == 1:
-            self.player.triangle_body.velocity = 1000,0
-        elif action == 0:
-            self.player.triangle_body.velocity = -1000,0
-        else:
-            self.player.triangle_body.velocity = 0,0
-        if shoot == 0:
-            self.player.bullets.append(Bullet(self.player.triangle_body.position[0],self.player.triangle_body.position[1],space,screen))
-        self.player.remove_bullet()
-
-env = Environment()
+env = Environment(space,screen)
 action = 0.5
 score = 0
 
@@ -50,6 +24,12 @@ def coll_begin(arbiter,space,data):
         score += 1
         env.rock.zindgi -= 1
         print(score)
+
+    elif arbiter.shapes[0].id == 3 and arbiter.shapes[1].id == 2:
+        env.done = True
+    elif arbiter.shapes[1].id == 3 and arbiter.shapes[0].id == 2:
+        env.done = True
+
 
     if env.rock.zindgi == 0:
         env.done = True
