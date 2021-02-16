@@ -39,6 +39,7 @@ class Rock():
         self.circle_shape.body.velocity = (100,0)
         self.circle_shape.elasticity = self.elasticity
         self.circle_shape.id = 2
+        self.zindgi = 5
 
         space.add(self.circle_body, self.circle_shape)
         

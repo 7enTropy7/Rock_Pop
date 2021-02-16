@@ -14,6 +14,7 @@ class Environment():
         self.ground = Ground(1,space,screen)
         self.player = Player(2000,500,720,space,screen)
         self.walls = Walls(1,space,screen)
+        self.done = False
 
     def draw_env(self):
         self.rock.draw_rock()
@@ -22,15 +23,15 @@ class Environment():
         self.player.draw_bullets()
         self.walls.draw_walls()
 
-    def step(self,action):
+    def step(self,action,shoot):
         if action == 1:
             self.player.triangle_body.velocity = 1000,0
         elif action == 0:
             self.player.triangle_body.velocity = -1000,0
-        elif action == 2:
-            self.player.bullets.append(Bullet(self.player.triangle_body.position[0],self.player.triangle_body.position[1],space,screen))
         else:
             self.player.triangle_body.velocity = 0,0
+        if shoot == 0:
+            self.player.bullets.append(Bullet(self.player.triangle_body.position[0],self.player.triangle_body.position[1],space,screen))
         self.player.remove_bullet()
 
 env = Environment()
@@ -40,14 +41,18 @@ score = 0
 def coll_begin(arbiter,space,data):
     global score
     global env
-    # print(arbiter.shapes)
     if arbiter.shapes[1].radius == 20 and arbiter.shapes[0].radius == 5: 
         score += 1
+        env.rock.zindgi -= 1
         print(score)
 
     elif arbiter.shapes[0].radius == 20 and arbiter.shapes[1].radius == 5: 
         score += 1
+        env.rock.zindgi -= 1
         print(score)
+
+    if env.rock.zindgi == 0:
+        env.done = True
 
     return True
 
@@ -72,8 +77,8 @@ handler = space.add_default_collision_handler()
 handler.begin = coll_begin
 handler.post_solve = coll_post
 
-
-while True:
+counter = 0
+while not env.done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.exit()
@@ -86,9 +91,10 @@ while True:
             if event.key == pygame.K_SPACE:
                 action = 2
 
+    counter += 1
     screen.fill((50,50,50))
     env.draw_env()
-    env.step(action)
+    env.step(action,counter%30)
     action = 0.5
     space.step(1/50)
     pygame.display.update()
