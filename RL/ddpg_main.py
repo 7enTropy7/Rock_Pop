@@ -1,34 +1,34 @@
 import pymunk
 import pygame
-from elements import Ground, Player, Rock, Walls, Bullet, Environment
+from elements_rl import Ground, Player, Rock, Walls, Bullet, Environment
+import numpy as np
+from ddpg_tf2 import Agent
+from utils import plot_learning_curve
 
-
-pygame.init()
-screen = pygame.display.set_mode((1000,800))
-clock = pygame.time.Clock()
-space = pymunk.Space()
-space.gravity = (0,100)
 
 def coll_begin(arbiter,space,data):
     global env
     if arbiter.shapes[1].radius == 20 and arbiter.shapes[0].radius == 5: 
-        score += 1
+        env.reward += 5
         env.rock.zindgi -= 1
-        print(score)
 
     elif arbiter.shapes[0].radius == 20 and arbiter.shapes[1].radius == 5: 
-        score += 1
+        env.reward += 5
         env.rock.zindgi -= 1
-        print(score)
 
     elif arbiter.shapes[0].id == 3 and arbiter.shapes[1].id == 2:
         env.done = True
+        env.player.collided = True
+        env.reward -= 5
+
     elif arbiter.shapes[1].id == 3 and arbiter.shapes[0].id == 2:
         env.done = True
-
+        env.player.collided = True
+        env.reward -= 5
 
     if env.rock.zindgi == 0:
         env.done = True
+        env.reward += 10
 
     return True
 
@@ -48,34 +48,65 @@ def coll_post(arbiter,space,data):
                 env.player.bullets.pop(b)
                 break
 
+pygame.init()
+screen = pygame.display.set_mode((1000,800))
+clock = pygame.time.Clock()
+space = pymunk.Space()
+space.gravity = (0,100)
+
+env = Environment(space,screen)
+agent = Agent(input_dims=((3,)), env=env, n_actions=1)
+n_games = 100
+
+figure_file = 'plots/rock_pop.png'
+
+best_score = float('-inf')
+score_history = []
+load_checkpoint = False
 
 handler = space.add_default_collision_handler()
 handler.begin = coll_begin
 handler.post_solve = coll_post
 
+# counter = 0
 
-env = Environment(space,screen)
-
-#  agent = Agent(input_dims=env.observation_space.shape, env=env, n_actions=env.action_space.shape[0])
-
-n_games = 250
-best_score = float('-inf')
-score_history = []
-load_checkpoint = False
+if load_checkpoint:
+    n_steps = 0
+    c = 0
+    while n_steps <= agent.batch_size:
+        observation = env.reset()
+        action = np.array([np.random.uniform(-1,1)])
+        observation_, reward, done = env.step(action,c%3)
+        agent.remember(observation, action, reward, observation_, done)
+        n_steps += 1
+        c += 1
+    agent.learn()
+    agent.load_models()
+    evaluate = True
+else:
+    evaluate = False
 
 for i in range(n_games):
+    counter = 0
     observation = env.reset()
-    env.done = False
+    done = False
     score = 0
-    while not env.done:
+    while not done:
         action = agent.choose_action(observation, evaluate)
-        observation_, reward, done, info = env.step(action) # counter 
+        observation_, reward, done = env.step(action,counter%3)
         score += reward
         agent.remember(observation, action, reward, observation_, done)
         if not load_checkpoint:
             agent.learn()
         observation = observation_
 
+        counter += 1
+        screen.fill((50,50,50))
+        space.step(1/50)
+        pygame.display.update()
+        clock.tick(120)
+        print(score)
+        # print(reward)
     score_history.append(score)
     avg_score = np.mean(score_history[-100:])
 

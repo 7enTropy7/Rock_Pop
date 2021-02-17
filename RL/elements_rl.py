@@ -34,21 +34,16 @@ class Environment():
         self.walls.draw_walls()
 
     def step(self,action,shoot):
-        if action == 1:
-            self.player.triangle_body.velocity = 1000,0
-        elif action == 0:
-            self.player.triangle_body.velocity = -1000,0
-        else:
-            self.player.triangle_body.velocity = 0,0
+        self.player.triangle_body.velocity = 1000*action[0],0
         if shoot == 0:
             self.player.bullets.append(Bullet(self.player.triangle_body.position[0],self.player.triangle_body.position[1],self.space,self.screen))
         self.player.remove_bullet()
         self.draw_env()
         observation_ = self.get_state()
         if self.player.collided == False:
-            self.reward -= 0.001
-        # done = self.done
-        return observation_, self.reward, self.done
+            self.reward -= 0.01
+        done = self.done
+        return observation_, self.reward, done
 
 
 

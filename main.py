@@ -37,6 +37,7 @@ def coll_begin(arbiter,space,data):
 
     if env.rock.zindgi == 0:
         env.done = True
+        env.reward += 10
 
     return True
 
@@ -63,7 +64,9 @@ handler.post_solve = coll_post
 
 counter = 0
 for i in range(1):
-    while not env.done:
+    done = False
+    score = 0
+    while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.exit()
@@ -81,12 +84,14 @@ for i in range(1):
         screen.fill((50,50,50))
         # env.draw_env()
         observation_, reward, done = env.step(action,counter%30) #30
-        
-        print(observation_, reward, done)
+        score += reward
+        # print(observation_, reward, done)
         action = 0.5
         space.step(1/50)
         pygame.display.update()
         clock.tick(120)
-    
+        # if done == True:
+        #     break
+        print(reward)
     observation = env.reset()
     # print(observation)
