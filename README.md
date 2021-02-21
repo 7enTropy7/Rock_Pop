@@ -31,6 +31,7 @@ For Single Player:
 $ python3 main.py
 ```
 
+## AI Playing
 
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/36446402/108635875-d5c8d000-74a7-11eb-8b25-e469c27476f3.gif)
 
