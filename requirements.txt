@@ -1,8 +1,6 @@
-numpy==1.19.5
-pygame==2.0.1
-matplotlib==3.2.2
 pymunk==6.0.0
 torch==1.5.1+cu101
-tensorflow_gpu==2.3.0
+numpy==1.19.5
 gym==0.18.0
-tensorflow==2.4.1
+matplotlib==3.2.2
+pygame==2.0.1
