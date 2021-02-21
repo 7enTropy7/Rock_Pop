@@ -21,9 +21,16 @@ $ pip3 install -r requirements.txt
 ```
 
 ## Demonstration
+For AI:
 ```bash
 $ python3 Pytorch_DDPG/testing.py
 ```
+
+For Single Player:
+```bash
+$ python3 main.py
+```
+
 
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/36446402/108635875-d5c8d000-74a7-11eb-8b25-e469c27476f3.gif)
 
