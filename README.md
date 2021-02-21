@@ -1,6 +1,3 @@
-# Rock_Pop
-[![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/powered-by-coffee.svg)](https://forthebadge.com)
-
 [![python3](https://img.shields.io/badge/python3-v3.6-teal?style=for-the-badge&logo=python)](https://www.python.org)
 
 [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
@@ -9,6 +6,9 @@
 [![Linkedin](https://img.shields.io/badge/Linkedin-Anirudh%20Menon-success?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/anirudh-menon-0b7764170/)
 [![Linkedin](https://img.shields.io/badge/Linkedin-Unnikrishnan%20Menon-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/unnikrishnan-menon-aa013415a/)
 
+# Rock_Pop
+
+A Pytorch implementation of DDPG algorithm that trains an agent to play and master a custom environment that was developed using Pymunk 2D physics engine and Pygame. 
 
 ## Cloning
 ```bash
