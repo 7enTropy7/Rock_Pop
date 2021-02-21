@@ -80,7 +80,7 @@ def train_agent(episodes):
         agent.reset()
         episode_reward = 0
         for t in range(max_timesteps):
-            screen.fill((50,50,50))
+            # screen.fill((50,50,50))
             action = agent.current_action(state)
             next_state, reward, done = env.step(action,t)
             agent.step(state, action, reward, next_state, done)
@@ -88,7 +88,7 @@ def train_agent(episodes):
             episode_reward += reward
             if done:
                 break 
-            # screen.fill((50,50,50))
+            screen.fill((50,50,50))
 
             space.step(1/50)
             clock.tick(120)
@@ -101,7 +101,7 @@ def train_agent(episodes):
             torch.save(agent.critic_local.state_dict(), 'critic_checkpoint.pth')
             print('\rEpisode {}\tAverage Reward: {:.2f}'.format(episode, np.mean(scores_deque)))   
 
-        if np.mean(scores_deque)>15:
+        if np.mean(scores_deque)>1:
             break
 
 train_agent(10000)
